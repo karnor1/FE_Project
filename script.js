@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   const postForm = document.getElementById('new-post-form');
-  const postList = document.getElementById('post-list');
+  const articles = document.getElementById('articles');
 
   if (postForm) {
       postForm.addEventListener('submit', function(event) {
@@ -30,18 +30,32 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function displayPost(post) {
-      if (!postList) return; 
+    const articles = document.querySelector('.articles');
+    if (!articles) return; 
 
-      const postItem = document.createElement('li');
-      postItem.innerHTML = `
-          <h3>${post.title}</h3>
-          <p>${post.content}</p>
-          ${post.image ? `<img src="${post.image}" alt="${post.title}">` : ''}
-          <p><small>${new Date(post.date).toLocaleString()}</small></p>
-      `;
+    const postItem = document.createElement('div');
+    postItem.innerHTML = `
+        <article>
+            <div class="article-wrapper">
+                <figure>
+                    <img src="${post.image ? post.image : 'https://via.placeholder.com/800x450'}" alt="${post.title}">
+                </figure>
+                <div class="article-body">
+                    <h2>${post.title}</h2>
+                    <p>${post.content}</p>
+                    <a href="#" class="read-more">
+                        Read more <span class="sr-only">about ${post.title}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </article>
+    `;
 
-      postList.appendChild(postItem);
-  }
+    articles.appendChild(postItem);
+}
 
   const posts = JSON.parse(localStorage.getItem('posts')) || [];
   posts.forEach(displayPost);
@@ -49,6 +63,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    
+
+    setInterval(changeTimeWidget(now),1000);
     // Your existing code...
 
     // Fetch weather data
@@ -97,32 +115,45 @@ document.addEventListener('DOMContentLoaded', function() {
         const hourlyWindSpeeds = hourlyData.wind_speed_10m;
     
 
-        const now = new Date();
         const currentHour = now.getHours();
         const currentdAY = now.getDay();
-
         
-        const hourlyDataElement = document.getElementById('weather-content');
 
-        if (hourlyDataElement) {
-            hourlyDataElement.innerHTML = '';
     
 
             for (let i = 0; i < hourlyTimes.length; i++) {
-                const listItem = document.createElement('li');
 
-                if ((currentHour == hourlyTimes[i].substring(11,13)) && (currentdAY == hourlyTimes[i].substring(8,10)))
+                if ((currentHour == hourlyTimes[i].substring(11,13) ) && (currentdAY == hourlyTimes[i].substring(8,10)))
                     {
 
-
-                    listItem.textContent = `${hourlyTimes[i]} - Temperature: ${hourlyTemperatures[i]} °C, Wind Speed: ${hourlyWindSpeeds[i]} m/s`;
-                    hourlyDataElement.appendChild(listItem);
+                        changeTemperature(hourlyTemperatures[i-2]);
+                    //listItem.textContent = `${hourlyTimes[i]} - Temperature: ${hourlyTemperatures[i]} °C, Wind Speed: ${hourlyWindSpeeds[i]} m/s`;
                 }
             }
-        } else {
-            console.error('Element with id "hourly-data" not found.');
-        }
+
     }
     
     
 });
+
+
+function changeTemperature(newTemp) {
+    const tempElement = document.querySelector('.Weather-container .Temp');
+
+    if (tempElement) {
+        const degreeSpan = tempElement.querySelector('#C');
+        tempElement.innerHTML = `${newTemp}${degreeSpan.outerHTML}`;
+    } else {
+        console.error('Temperature element not found');
+    }
+}
+
+function changeTimeWidget(newTime) {
+    const timeElement = document.querySelector('.Weather-container .Time');
+
+    if (timeElement) {
+        timeElement.innerHTML = `${newTime}`;
+    } else {
+        console.error('Time element not found');
+    }
+}
